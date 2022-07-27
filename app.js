@@ -21,6 +21,14 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  req.user = {
+    _id: '62deba63ce4536117ef6d466',
+  };
+
+  next();
+});
+
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
