@@ -6,6 +6,8 @@ const path = require('path');
 
 const { PORT = 3000 } = process.env;
 
+const { ERROR_CODE_NOT_FOUND } = require('./utils/errors');
+
 const app = express();
 
 const PUBLIC_FOLDER = path.join(__dirname, 'public');
@@ -30,7 +32,10 @@ app.use((req, res, next) => {
 });
 
 app.use('/users', require('./routes/users'));
+
 app.use('/cards', require('./routes/cards'));
+
+app.use('*', (req, res) => res.status(ERROR_CODE_NOT_FOUND).send({ message: '404 Not Found' }));
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
