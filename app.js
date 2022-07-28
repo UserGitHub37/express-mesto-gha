@@ -2,19 +2,14 @@ require('dotenv').config();
 
 const express = require('express');
 const mongoose = require('mongoose');
-const path = require('path');
 
 const { PORT = 3000 } = process.env;
 
-const { ERROR_CODE_NOT_FOUND } = require('./utils/errors');
+const { STATUS_CODE_NOT_FOUND } = require('./utils/statusCodes');
 
 const app = express();
 
-const PUBLIC_FOLDER = path.join(__dirname, 'public');
-
 mongoose.connect('mongodb://localhost:27017/mestodb');
-
-app.use(express.static(PUBLIC_FOLDER));
 
 app.use(express.json());
 
@@ -35,7 +30,7 @@ app.use('/users', require('./routes/users'));
 
 app.use('/cards', require('./routes/cards'));
 
-app.use('*', (req, res) => res.status(ERROR_CODE_NOT_FOUND).send({ message: '404 Not Found' }));
+app.use('*', (req, res) => res.status(STATUS_CODE_NOT_FOUND).send({ message: '404 Not Found' }));
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
