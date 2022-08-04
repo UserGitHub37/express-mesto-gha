@@ -14,6 +14,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb');
 app.use(express.json());
 
 app.use((req, res, next) => {
+  // eslint-disable-next-line no-console
   console.log(`${req.method}: ${req.path} ${JSON.stringify(req.body)}`);
   next();
 });
@@ -33,5 +34,6 @@ app.use('/cards', require('./routes/cards'));
 app.use('*', (req, res) => res.status(STATUS_CODE_NOT_FOUND).send({ message: '404 Not Found' }));
 
 app.listen(PORT, () => {
+  // eslint-disable-next-line no-console
   console.log(`Example app listening on port ${PORT}`);
 });
