@@ -23,12 +23,13 @@
   "dependencies": {
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
-    "mongoose": "^6.4.6"
+    "mongoose": "^6.4.6",
+    "validator": "^13.7.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.19",
     "eslint": "^8.20.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-import": "^2.26.0"
+    "eslint-plugin-import": "^2.26.0",
+    "nodemon": "^2.0.19"
   }
 }
