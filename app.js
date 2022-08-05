@@ -7,6 +7,10 @@ const { PORT = 3000 } = process.env;
 
 const { STATUS_CODE_NOT_FOUND } = require('./utils/statusCodes');
 
+const { login } = require('./controllers/login');
+
+const { createUser } = require('./controllers/users');
+
 const app = express();
 
 mongoose.connect('mongodb://localhost:27017/mestodb');
@@ -26,6 +30,10 @@ app.use((req, res, next) => {
 
   next();
 });
+
+app.post('/signin', login);
+
+app.post('/signup', createUser);
 
 app.use('/users', require('./routes/users'));
 
