@@ -3,6 +3,7 @@ const Card = require('../models/card');
 const {
   STATUS_CODE_CREATED,
   STATUS_CODE_BAD_REQUEST,
+  STATUS_CODE_UNAUTHORIZED,
   STATUS_CODE_NOT_FOUND,
   STATUS_CODE_INTERNAL_SERVER_ERROR,
 } = require('../utils/statusCodes');
@@ -35,11 +36,19 @@ module.exports.createCard = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .orFail()
-    .then(() => res.send({
-      message: 'Пост удалён',
-    }))
+  Card.findById(req.params.cardId)
+    .then((card) => {
+      if (req.user._id !== card.owner._id.toString()) {
+        throw new Error('Отсутствуют права на удаление карточки');
+      }
+
+      Card.findByIdAndRemove(req.params.cardId)
+        .orFail()
+        .then(() => res.send({
+          message: 'Пост удалён',
+        }))
+        .catch(() => res.status(STATUS_CODE_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' }));
+    })
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
         res.status(STATUS_CODE_NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена' });
@@ -47,6 +56,10 @@ module.exports.deleteCard = (req, res) => {
       }
       if (err.name === 'CastError') {
         res.status(STATUS_CODE_BAD_REQUEST).send({ message: 'Передан некорректный _id карточки' });
+        return;
+      }
+      if (err.message === 'Отсутствуют права на удаление карточки') {
+        res.status(STATUS_CODE_UNAUTHORIZED).send({ message: 'Отсутствуют права на удаление карточки' });
         return;
       }
       res.status(STATUS_CODE_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
