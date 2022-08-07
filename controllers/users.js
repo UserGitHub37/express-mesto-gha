@@ -7,6 +7,7 @@ const {
   STATUS_CODE_CREATED,
   STATUS_CODE_BAD_REQUEST,
   STATUS_CODE_NOT_FOUND,
+  STATUS_CODE_CONFLICT,
   STATUS_CODE_INTERNAL_SERVER_ERROR,
 } = require('../utils/statusCodes');
 
@@ -68,8 +69,11 @@ module.exports.createUser = (req, res) => {
         res.status(STATUS_CODE_BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' });
         return;
       }
-      console.log(err.name);
-      console.log(err.message);
+      if (err.code === 11000) {
+        res.status(STATUS_CODE_CONFLICT).send({ message: 'Пользователь с таким email уже существует' });
+        return;
+      }
+
       res.status(STATUS_CODE_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
     });
 };

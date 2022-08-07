@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { JWT_SECRET } = require('../utils/config');
+const { STATUS_CODE_UNAUTHORIZED, STATUS_CODE_INTERNAL_SERVER_ERROR } = require('../utils/statusCodes');
 
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
@@ -12,8 +13,11 @@ module.exports.login = (req, res) => {
       res.send({ token });
     })
     .catch((err) => {
-      res
-        .status(401)
-        .send({ message: err.message });
+      if (err.message === 'Неправильные почта или пароль') {
+        res.status(STATUS_CODE_UNAUTHORIZED).send({ message: err.message });
+        return;
+      }
+
+      res.status(STATUS_CODE_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
     });
 };
