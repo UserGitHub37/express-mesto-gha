@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 
+const { SALT_ROUND } = require('../utils/config');
+
 const {
   STATUS_CODE_CREATED,
   STATUS_CODE_BAD_REQUEST,
@@ -31,6 +33,14 @@ module.exports.getUserById = (req, res) => {
     });
 };
 
+module.exports.getUser = (req, res) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      res.send(user);
+    })
+    .catch(() => res.status(STATUS_CODE_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' }));
+};
+
 module.exports.createUser = (req, res) => {
   const {
     name,
@@ -40,7 +50,7 @@ module.exports.createUser = (req, res) => {
     password,
   } = req.body;
 
-  bcrypt.hash(password, 10)
+  bcrypt.hash(password, SALT_ROUND)
     .then((hash) => User.create({
       name,
       about,
@@ -48,12 +58,18 @@ module.exports.createUser = (req, res) => {
       email,
       password: hash,
     }))
-    .then((user) => res.status(STATUS_CODE_CREATED).send(user))
+    .then((user) => {
+      const userData = user.toObject();
+      delete userData.password;
+      return res.status(STATUS_CODE_CREATED).send(userData);
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(STATUS_CODE_BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' });
         return;
       }
+      console.log(err.name);
+      console.log(err.message);
       res.status(STATUS_CODE_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
     });
 };
