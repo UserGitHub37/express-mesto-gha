@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { JWT_SECRET } = require('../utils/config');
-const { STATUS_CODE_UNAUTHORIZED, STATUS_CODE_INTERNAL_SERVER_ERROR } = require('../utils/statusCodes');
+const Unauthorized = require('../errors/unauthorized-err');
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
@@ -14,10 +14,8 @@ module.exports.login = (req, res) => {
     })
     .catch((err) => {
       if (err.message === 'Неправильные почта или пароль') {
-        res.status(STATUS_CODE_UNAUTHORIZED).send({ message: err.message });
-        return;
+        next(new Unauthorized(err.message));
       }
-
-      res.status(STATUS_CODE_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' });
+      next(err);
     });
 };
