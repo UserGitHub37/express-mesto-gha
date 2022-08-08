@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 
 const { PORT = 3000 } = process.env;
 
-const { STATUS_CODE_NOT_FOUND } = require('./utils/statusCodes');
+const { STATUS_CODE_NOT_FOUND, STATUS_CODE_INTERNAL_SERVER_ERROR } = require('./utils/statusCodes');
 
 const { login } = require('./controllers/login');
 
@@ -38,12 +38,12 @@ app.use('/cards', require('./routes/cards'));
 app.use('*', (req, res) => res.status(STATUS_CODE_NOT_FOUND).send({ message: '404 Not Found' }));
 
 app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
+  const { statusCode = STATUS_CODE_INTERNAL_SERVER_ERROR, message } = err;
 
   res
     .status(statusCode)
     .send({
-      message: statusCode === 500
+      message: statusCode === STATUS_CODE_INTERNAL_SERVER_ERROR
         ? 'На сервере произошла ошибка'
         : message,
     });
