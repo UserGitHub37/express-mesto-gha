@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { JWT_SECRET } = require('../utils/config');
-const Unauthorized = require('../errors/unauthorized-err');
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
@@ -12,10 +11,5 @@ module.exports.login = (req, res, next) => {
 
       res.send({ token });
     })
-    .catch((err) => {
-      if (err.message === 'Неправильные почта или пароль') {
-        next(new Unauthorized(err.message));
-      }
-      next(err);
-    });
+    .catch(next);
 };
