@@ -1,7 +1,7 @@
 const Card = require('../models/card');
 const NotFoundError = require('../errors/not-found-err');
 const BadRequest = require('../errors/bad-request-err');
-const Unauthorized = require('../errors/unauthorized-err');
+const Forbidden = require('../errors/forbidden-err');
 
 const { STATUS_CODE_CREATED } = require('../utils/statusCodes');
 
@@ -36,7 +36,7 @@ module.exports.deleteCard = (req, res, next) => {
     .orFail()
     .then((card) => {
       if (req.user._id !== card.owner._id.toString()) {
-        next(new Unauthorized('Отсутствуют права на удаление карточки'));
+        next(new Forbidden('Отсутствуют права на удаление карточки'));
       }
 
       Card.findByIdAndRemove(req.params.cardId)
