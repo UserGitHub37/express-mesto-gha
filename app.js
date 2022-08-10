@@ -1,4 +1,5 @@
 require('dotenv').config();
+const { celebrate, Joi, errors } = require('celebrate');
 
 const express = require('express');
 const mongoose = require('mongoose');
@@ -25,9 +26,22 @@ app.use((req, res, next) => {
   next();
 });
 
-app.post('/signin', login);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email({ minDomainSegments: 2 }),
+    password: Joi.string().required(),
+  }),
+}), login);
 
-app.post('/signup', createUser);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().regex(/^https?:\/\/(w{3}\.)?[0-9a-z.-]{1,256}\/?([0-9a-z\-._~:/?#[\]@!$&'()*+,;=])*/i),
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+  }),
+}), createUser);
 
 app.use(auth);
 
@@ -36,6 +50,8 @@ app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
 app.use('*', (req, res) => res.status(STATUS_CODE_NOT_FOUND).send({ message: '404 Not Found' }));
+
+app.use(errors());
 
 app.use((err, req, res, next) => {
   const { statusCode = STATUS_CODE_INTERNAL_SERVER_ERROR, message } = err;
