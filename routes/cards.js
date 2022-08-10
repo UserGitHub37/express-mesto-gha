@@ -16,7 +16,11 @@ router.post('/', celebrate({
     link: Joi.string().regex(/^https?:\/\/(w{3}\.)?[0-9a-z.-]{1,256}\/?([0-9a-z\-._~:/?#[\]@!$&'()*+,;=])*/i),
   }),
 }), createCard);
-router.delete('/:cardId', deleteCard);
+router.delete('/:cardId', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().length(24).hex(),
+  }),
+}), deleteCard);
 router.put('/:cardId/likes', likeCard);
 router.delete('/:cardId/likes', dislikeCard);
 
