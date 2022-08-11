@@ -12,6 +12,7 @@ const { STATUS_CODE_NOT_FOUND, STATUS_CODE_INTERNAL_SERVER_ERROR } = require('./
 const { login } = require('./controllers/login');
 const { createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const { urlRegex } = require('./utils/config');
 
 const app = express();
 
@@ -47,7 +48,7 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().regex(/^https?:\/\/(w{3}\.)?[0-9a-z.-]{1,256}\/?([0-9a-z\-._~:/?#[\]@!$&'()*+,;=])*/i),
+    avatar: Joi.string().regex(urlRegex),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
