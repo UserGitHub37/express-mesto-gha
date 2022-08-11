@@ -9,7 +9,6 @@ const { STATUS_CODE_CREATED } = require('../utils/statusCodes');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
-    .populate('owner')
     .then((cards) => res.send(cards))
     .catch(next);
 };
@@ -23,13 +22,13 @@ module.exports.createCard = (req, res, next) => {
     link,
     owner: _id,
   })
-    .then((card) => card.populate('owner'))
     .then((card) => res.status(STATUS_CODE_CREATED).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequest('Переданы некорректные данные при создании карточки'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -39,6 +38,7 @@ module.exports.deleteCard = (req, res, next) => {
     .then((card) => {
       if (req.user._id !== card.owner._id.toString()) {
         next(new Forbidden('Отсутствуют права на удаление карточки'));
+        return;
       }
 
       Card.findByIdAndRemove(req.params.cardId)
@@ -51,11 +51,11 @@ module.exports.deleteCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
         next(new NotFoundError('Карточка с указанным _id не найдена'));
-      }
-      if (err.name === 'CastError') {
+      } else if (err.name === 'CastError') {
         next(new BadRequest('Передан некорректный _id карточки'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -66,16 +66,15 @@ module.exports.likeCard = (req, res, next) => {
     { new: true }, // обработчик then получит на вход обновлённую запись
   )
     .orFail()
-    .populate(['owner', 'likes'])
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
         next(new NotFoundError('Передан несуществующий _id карточки'));
-      }
-      if (err.name === 'CastError') {
+      } else if (err.name === 'CastError') {
         next(new BadRequest('Переданы некорректные данные для постановки/снятии лайка'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -86,15 +85,14 @@ module.exports.dislikeCard = (req, res, next) => {
     { new: true }, // обработчик then получит на вход обновлённую запись
   )
     .orFail()
-    .populate(['owner', 'likes'])
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
         next(new NotFoundError('Передан несуществующий _id карточки'));
-      }
-      if (err.name === 'CastError') {
+      } else if (err.name === 'CastError') {
         next(new BadRequest('Переданы некорректные данные для постановки/снятии лайка'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
