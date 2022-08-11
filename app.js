@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const { celebrate, Joi, errors } = require('celebrate');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
 
 const { PORT = 3000 } = process.env;
 const { STATUS_CODE_NOT_FOUND, STATUS_CODE_INTERNAL_SERVER_ERROR } = require('./utils/statusCodes');
@@ -22,6 +23,8 @@ const limiter = rateLimit({
 app.use(limiter);
 
 app.use(helmet());
+
+app.use(cookieParser());
 
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
