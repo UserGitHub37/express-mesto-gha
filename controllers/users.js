@@ -78,8 +78,8 @@ module.exports.updateUser = (req, res, next) => {
   User.findByIdAndUpdate(
     req.user._id,
     {
-      name: name ? escape(name) : name,
-      about: about ? escape(about) : about,
+      name: name ? escape(name) : undefined,
+      about: about ? escape(about) : undefined,
     },
     {
       new: true,
