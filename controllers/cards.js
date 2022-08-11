@@ -1,3 +1,5 @@
+const escape = require('escape-html');
+
 const Card = require('../models/card');
 const NotFoundError = require('../errors/not-found-err');
 const BadRequest = require('../errors/bad-request-err');
@@ -17,7 +19,7 @@ module.exports.createCard = (req, res, next) => {
   const { _id } = req.user;
 
   Card.create({
-    name,
+    name: escape(name),
     link,
     owner: _id,
   })

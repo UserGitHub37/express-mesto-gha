@@ -1,4 +1,6 @@
 const bcrypt = require('bcryptjs');
+const escape = require('escape-html');
+
 const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
 const BadRequest = require('../errors/bad-request-err');
@@ -48,8 +50,8 @@ module.exports.createUser = (req, res, next) => {
 
   bcrypt.hash(password, SALT_ROUND)
     .then((hash) => User.create({
-      name,
-      about,
+      name: escape(name),
+      about: escape(about),
       avatar,
       email,
       password: hash,
@@ -75,7 +77,10 @@ module.exports.updateUser = (req, res, next) => {
 
   User.findByIdAndUpdate(
     req.user._id,
-    { name, about },
+    {
+      name: escape(name),
+      about: escape(about),
+    },
     {
       new: true,
       runValidators: true,
