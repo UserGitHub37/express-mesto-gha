@@ -50,8 +50,8 @@ module.exports.createUser = (req, res, next) => {
 
   bcrypt.hash(password, SALT_ROUND)
     .then((hash) => User.create({
-      name: escape(name),
-      about: escape(about),
+      name: name ? escape(name) : undefined,
+      about: about ? escape(about) : undefined,
       avatar,
       email,
       password: hash,
@@ -78,8 +78,8 @@ module.exports.updateUser = (req, res, next) => {
   User.findByIdAndUpdate(
     req.user._id,
     {
-      name: escape(name),
-      about: escape(about),
+      name: name ? escape(name) : name,
+      about: about ? escape(about) : about,
     },
     {
       new: true,
