@@ -49,36 +49,33 @@ module.exports.createUser = (req, res, next) => {
   } = req.body;
 
   User.findOne({ email })
-    .orFail()
-    .then(() => {
-      bcrypt.hash(password, SALT_ROUND)
-        .then((hash) => User.create({
-          name: name ? escape(name) : undefined,
-          about: about ? escape(about) : undefined,
-          avatar,
-          email,
-          password: hash,
-        }))
-        .then((user) => {
-          const userData = user.toObject();
-          delete userData.password;
-          return res.status(STATUS_CODE_CREATED).send(userData);
-        })
-        .catch((err) => {
-          if (err.name === 'ValidationError') {
-            next(new BadRequest('Переданы некорректные данные при создании пользователя'));
-          } else {
-            next(err);
-          }
-        });
-    })
-    .catch((err) => {
-      if (err.code === 11000) {
+    .then((data) => {
+      if (data) {
         next(new Conflict('Пользователь с таким email уже существует'));
       } else {
-        next(err);
+        bcrypt.hash(password, SALT_ROUND)
+          .then((hash) => User.create({
+            name: name ? escape(name) : undefined,
+            about: about ? escape(about) : undefined,
+            avatar,
+            email,
+            password: hash,
+          }))
+          .then((user) => {
+            const userData = user.toObject();
+            delete userData.password;
+            return res.status(STATUS_CODE_CREATED).send(userData);
+          })
+          .catch((err) => {
+            if (err.name === 'ValidationError') {
+              next(new BadRequest('Переданы некорректные данные при создании пользователя'));
+            } else {
+              next(err);
+            }
+          });
       }
-    });
+    })
+    .catch(next);
 };
 
 module.exports.updateUser = (req, res, next) => {
